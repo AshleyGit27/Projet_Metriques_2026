@@ -5,40 +5,129 @@
   <title>Histogramme Paris</title>
   <script src="https://www.gstatic.com/charts/loader.js"></script>
   <style>
-    body { font-family: system-ui, sans-serif; margin: 24px; }
-    #chart { width: 100%; height: 520px; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Times New Roman', Times, serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      min-height: 100vh;
+      padding: 40px 20px;
+      color: #eaeaea;
+    }
+
+    .card {
+      max-width: 1100px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 40px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .header h1 {
+      font-size: 2.2rem;
+      font-weight: normal;
+      letter-spacing: 2px;
+      color: #e2c97e;
+      text-shadow: 0 2px 8px rgba(226, 201, 126, 0.3);
+    }
+
+    .header p {
+      margin-top: 8px;
+      font-style: italic;
+      color: #a0aec0;
+      font-size: 1rem;
+    }
+
+    .divider {
+      width: 80px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #e2c97e, transparent);
+      margin: 16px auto;
+    }
+
+    #chart {
+      width: 100%;
+      height: 480px;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    #status {
+      text-align: center;
+      margin-top: 16px;
+      font-style: italic;
+      color: #718096;
+      font-size: 0.9rem;
+    }
   </style>
 </head>
 <body>
-  <h1>Températures horaires — Paris (histogramme)</h1>
-  <div id="chart"></div>
+  <div class="card">
+    <div class="header">
+      <h1>🌡 Températures — Paris</h1>
+      <div class="divider"></div>
+      <p>Prévisions horaires sur 7 jours</p>
+    </div>
+    <div id="chart"></div>
+    <div id="status">Chargement des données...</div>
+  </div>
 
   <script>
     google.charts.load('current', { packages: ['corechart'] });
     google.charts.setOnLoadCallback(init);
 
     async function init() {
-      const res = await fetch('/paris');
-      const json = await res.json();
+      try {
+        const res = await fetch('/paris');
+        const json = await res.json();
 
-      const data = new google.visualization.DataTable();
-      data.addColumn('string', 'Date/Heure');
-      data.addColumn('number', 'Température (°C)');
+        const data = new google.visualization.DataTable();
+        data.addColumn('string', 'Date/Heure');
+        data.addColumn('number', 'Température (°C)');
 
-      json.forEach(p => {
-        data.addRow([p.datetime, p.temperature_c]);
-      });
+        json.forEach(p => {
+          data.addRow([p.datetime, p.temperature_c]);
+        });
 
-      const options = {
-        title: 'Température à Paris (horaire)',
-        hAxis: { title: 'Date/Heure' },
-        vAxis: { title: '°C' },
-        legend: { position: 'none' },
-        bar: { groupWidth: '90%' }
-      };
+        const options = {
+          backgroundColor: 'transparent',
+          titleTextStyle: { fontName: 'Times New Roman', color: '#e2c97e', fontSize: 16 },
+          hAxis: {
+            title: 'Date / Heure',
+            textStyle: { fontName: 'Times New Roman', color: '#a0aec0', fontSize: 11 },
+            titleTextStyle: { fontName: 'Times New Roman', color: '#e2c97e' },
+            slantedText: true,
+            slantedTextAngle: 45,
+            showTextEvery: 12
+          },
+          vAxis: {
+            title: 'Température (°C)',
+            textStyle: { fontName: 'Times New Roman', color: '#a0aec0' },
+            titleTextStyle: { fontName: 'Times New Roman', color: '#e2c97e' },
+            gridlines: { color: 'rgba(255,255,255,0.08)' },
+            baselineColor: 'rgba(255,255,255,0.2)'
+          },
+          legend: { position: 'none' },
+          bar: { groupWidth: '90%' },
+          colors: ['#e2c97e'],
+          chartArea: { left: 70, right: 30, top: 20, bottom: 100, width: '100%', height: '100%' }
+        };
 
-      const chart = new google.visualization.ColumnChart(document.getElementById('chart'));
-      chart.draw(data, options);
+        const chart = new google.visualization.ColumnChart(document.getElementById('chart'));
+        chart.draw(data, options);
+        document.getElementById('status').textContent = `✔ ${json.length} points chargés depuis /paris`;
+
+      } catch (err) {
+        document.getElementById('status').textContent = 'Erreur : ' + err.message;
+      }
     }
   </script>
 </body>
