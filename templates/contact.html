@@ -4,12 +4,12 @@
   <meta charset="utf-8" />
   <title>Contact</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Orbitron:wght@400;700;900&display=swap');
-    
+    @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap');
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: 'Inter', sans-serif;
+      font-family: 'Share Tech Mono', monospace;
       background: #0a0a0f;
       min-height: 100vh;
       display: flex;
@@ -244,7 +244,7 @@
 </head>
 <body>
   <div class="container">
-    <div class="badge">🖥 <span>>_</span> Accès autorisé. Bienvenue sur la page d'Ashley Edoh </div>
+    <div class="badge">🖥 <span>>_</span> Accès autorisé. Bienvenue sur la page d'Ashley Edoh.</div>
 
     <h1>
       <span class="white">Me</span><br>
@@ -274,22 +274,15 @@
         <textarea id="message" placeholder="Votre message..."></textarea>
       </div>
 
-      <button class="btn" onclick="handleSubmit()">⟢ ENVOYER LE MESSAGE</button>
+      <button class="btn" onclick="handleSubmit()"> ENVOYER LE MESSAGE</button>
     </div>
 
-    <div class="socials" :class="{ visible: show.socials }">
-          <a
-            v-for="s in socials"
-            :key="s.label"
-            :href="s.url"
-            target="_blank"
-            rel="noopener"
-            class="social-btn"
-            :title="s.label"
-          >
-            <span class="social-icon" v-html="s.svg"></span>
-          </a>
-        </div>
+    <div class="socials">
+      <a href="#" title="GitHub">⌥</a>
+      <a href="#" title="LinkedIn">in</a>
+      <a href="#" title="Shield">⊕</a>
+    </div>
+  </div>
 
   <!-- Popup -->
   <div class="overlay" id="overlay">
