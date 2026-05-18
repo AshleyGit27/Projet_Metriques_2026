@@ -40,6 +40,26 @@ def mongraphique():
 def monhistogramme():
     return render_template("histogramme.html")
 
+@app.route("/atelier")
+def atelier():
+    return render_template("atelier.html")
+
+@app.get("/precipitations")
+def api_precipitations():
+    url = "https://api.open-meteo.com/v1/forecast?latitude=48.8566&longitude=2.3522&hourly=precipitation"
+    response = requests.get(url)
+    data = response.json()
+
+    times = data.get("hourly", {}).get("time", [])
+    precip = data.get("hourly", {}).get("precipitation", [])
+
+    n = min(len(times), len(precip))
+    result = [
+        {"datetime": times[i], "precipitation_mm": precip[i]}
+        for i in range(n)
+    ]
+    return jsonify(result)
+
 # Ne rien mettre après ce commentaire
     
 if __name__ == "__main__":
