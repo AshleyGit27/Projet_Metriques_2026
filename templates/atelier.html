@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <title>Atelier — Précipitations Paris</title>
+  <script src="https://www.gstatic.com/charts/loader.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Orbitron:wght@400;700;900&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #060612;
+      min-height: 100vh;
+      padding: 40px 24px;
+      color: #eaeaea;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0, 180, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 180, 255, 0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* Glow blobs */
+    .blob1 {
+      position: fixed;
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(0,150,255,0.1) 0%, transparent 70%);
+      top: -100px; left: -100px;
+      pointer-events: none; z-index: 0;
+    }
+    .blob2 {
+      position: fixed;
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(0,220,255,0.07) 0%, transparent 70%);
+      bottom: -80px; right: -80px;
+      pointer-events: none; z-index: 0;
+    }
+
+    .wrapper {
+      position: relative;
+      z-index: 1;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0,180,255,0.07);
+      border: 1px solid rgba(0,180,255,0.2);
+      border-radius: 6px;
+      padding: 6px 14px;
+      font-size: 0.78rem;
+      color: #7dd3fc;
+      margin-bottom: 24px;
+      letter-spacing: 1px;
+    }
+
+    h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2.4rem;
+      font-weight: 900;
+      line-height: 1.1;
+      margin-bottom: 6px;
+    }
+
+    h1 .white { color: #ffffff; }
+    h1 .gradient {
+      background: linear-gradient(90deg, #38bdf8, #818cf8, #22d3ee);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      font-size: 0.9rem;
+      color: #38bdf8;
+      font-style: italic;
+      margin-bottom: 36px;
+      letter-spacing: 1px;
+    }
+
+    .subtitle::after {
+      content: '█';
+      animation: blink 1s step-end infinite;
+      color: #22d3ee;
+    }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    /* Stats cards */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .stat-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(0,180,255,0.15);
+      border-radius: 12px;
+      padding: 20px 24px;
+      box-shadow: 0 0 20px rgba(0,180,255,0.05);
+    }
+
+    .stat-card .label {
+      font-size: 0.7rem;
+      color: #38bdf8;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .stat-card .value {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .stat-card .unit {
+      font-size: 0.8rem;
+      color: #7dd3fc;
+      margin-left: 4px;
+    }
+
+    /* Chart card */
+    .chart-card {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(0,180,255,0.15);
+      border-radius: 16px;
+      padding: 32px;
+      box-shadow: 0 0 40px rgba(0,180,255,0.06), inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+
+    .chart-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+
+    .chart-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1rem;
+      color: #e2e8f0;
+      letter-spacing: 1px;
+    }
+
+    .live-dot {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      color: #38bdf8;
+    }
+
+    .live-dot::before {
+      content: '';
+      width: 8px; height: 8px;
+      background: #22d3ee;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #22d3ee;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.8); }
+    }
+
+    #chart { width: 100%; height: 420px; }
+
+    #status {
+      text-align: center;
+      margin-top: 16px;
+      font-size: 0.8rem;
+      color: #475569;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <div class="blob1"></div>
+  <div class="blob2"></div>
+
+  <div class="wrapper">
+    <div class="badge">🌧 >_ MÉTÉO · PARIS · PRÉCIPITATIONS</div>
+
+    <h1>
+      <span class="white">Dashboard</span><br>
+      <span class="gradient">Précipitations</span>
+    </h1>
+    <p class="subtitle">Prévisions horaires sur 7 jours</p>
+
+    <div class="stats">
+      <div class="stat-card">
+        <div class="label">Total prévu</div>
+        <div class="value" id="total">—<span class="unit">mm</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Pic max</div>
+        <div class="value" id="max">—<span class="unit">mm</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Heures de pluie</div>
+        <div class="value" id="rainy">—<span class="unit">h</span></div>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-header">
+        <div class="chart-title">PRÉCIPITATIONS HORAIRES — PARIS</div>
+        <div class="live-dot">LIVE DATA</div>
+      </div>
+      <div id="chart"></div>
+      <div id="status">Chargement des données...</div>
+    </div>
+  </div>
+
+  <script>
+    google.charts.load('current', { packages: ['corechart'] });
+    google.charts.setOnLoadCallback(init);
+
+    async function init() {
+      try {
+        const res = await fetch('/precipitations');
+        const json = await res.json();
+
+        // Stats
+        const values = json.map(p => p.precipitation_mm);
+        const total = values.reduce((a, b) => a + b, 0).toFixed(1);
+        const max = Math.max(...values).toFixed(1);
+        const rainy = values.filter(v => v > 0).length;
+
+        document.getElementById('total').innerHTML = `${total}<span class="unit">mm</span>`;
+        document.getElementById('max').innerHTML = `${max}<span class="unit">mm</span>`;
+        document.getElementById('rainy').innerHTML = `${rainy}<span class="unit">h</span>`;
+
+        // Chart
+        const data = new google.visualization.DataTable();
+        data.addColumn('string', 'Date/Heure');
+        data.addColumn('number', 'Précipitations (mm)');
+
+        json.forEach(p => {
+          data.addRow([p.datetime, p.precipitation_mm]);
+        });
+
+        const options = {
+          backgroundColor: 'transparent',
+          colors: ['#38bdf8'],
+          areaOpacity: 0.3,
+          lineWidth: 2,
+          pointSize: 0,
+          titleTextStyle: { color: '#e2e8f0', fontName: 'Orbitron' },
+          hAxis: {
+            textStyle: { color: '#475569', fontName: 'Inter', fontSize: 10 },
+            gridlines: { color: 'transparent' },
+            showTextEvery: 24,
+            slantedText: true,
+            slantedTextAngle: 45
+          },
+          vAxis: {
+            title: 'mm',
+            titleTextStyle: { color: '#38bdf8', fontName: 'Inter' },
+            textStyle: { color: '#475569', fontName: 'Inter' },
+            gridlines: { color: 'rgba(0,180,255,0.06)' },
+            baselineColor: 'rgba(0,180,255,0.15)',
+            minValue: 0
+          },
+          legend: { position: 'none' },
+          chartArea: { left: 60, right: 20, top: 10, bottom: 80 }
+        };
+
+        const chart = new google.visualization.AreaChart(document.getElementById('chart'));
+        chart.draw(data, options);
+
+        document.getElementById('status').textContent = `✔ ${json.length} points chargés — open-meteo.com`;
+
+      } catch (err) {
+        document.getElementById('status').textContent = 'Erreur : ' + err.message;
+      }
+    }
+  </script>
+</body>
+</html>
